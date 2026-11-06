@@ -25,6 +25,14 @@ void printList(llist l){
             printf("%c", l->data[i]);
         }
         for(int i = 0; l->reference[i] != 0; i++){
+            if(i == 0){
+                printf("%20d, ", l->reference[i]);
+                continue;
+            }
+            else if(l->reference[i+1] == 0){
+                printf("%d", l->reference[i]);
+                break;
+            }
         printf("%d, ", l->reference[i]);
         }
         l = l->next;
@@ -179,6 +187,8 @@ int main (){
     lineCount++;
     }
 
+    printf("Word                  References   \n");
+    printf("--------------------- ------------  \n");
     printList(referenceList);
 
     fclose(file);
