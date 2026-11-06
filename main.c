@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
 
 
 struct node {
@@ -29,9 +28,10 @@ void printList(llist l){
         printf("%d, ", l->reference[i]);
         }
         l = l->next;
-    } 
+        printf("\n");
+    }
     for(int i = 0; i < strlen(l->data); i++) {
-            printf("%d ", l->data[i]);
+            printf("%c", l->data[i]);
     }
     for(int i = 0; l->reference[i] != 0; i++){
         printf("%d, ", l->reference[i]);
@@ -68,7 +68,7 @@ llist addAtEnd(const llist l, char s[], int c){
 
     return l;
 }
-
+/*
 char sToLower(char s[]){
     for(int i = 0; i < strlen(s); i++){
         if(s[i] <= 90 && s[i] >= 65){
@@ -77,6 +77,7 @@ char sToLower(char s[]){
     }
     return s;
 }
+*/
 
 int scmp(char s1[], char s2[]){
     //printf("scmp");
@@ -101,7 +102,7 @@ int scmp(char s1[], char s2[]){
     
 
 llist checkIfInList(llist s, char str[], int lineCount){
-    printf("CheckInList");
+    //printf("CheckInList");
     llist temp = s;
     int jCheck = 0;
     if(s == NULL){
@@ -110,6 +111,9 @@ llist checkIfInList(llist s, char str[], int lineCount){
         while(temp->next != NULL){
             if(scmp(temp->data, str) == 0){
                 for(int j = 0; temp->reference[j] != 0; j++){
+                    if(temp->reference[j] == lineCount){
+                        return s;
+                    }
                     jCheck++;
                 }
                 temp->reference[jCheck] = lineCount;
@@ -119,6 +123,9 @@ llist checkIfInList(llist s, char str[], int lineCount){
         }
         if(scmp(temp->data, str) == 0){
             for(int j = 0; temp->reference[j] != 0; j++){
+                if(temp->reference[j] == lineCount){
+                    return s;
+                }
                 jCheck++;
             }
             temp->reference[jCheck] = lineCount;
@@ -133,7 +140,7 @@ int main (){
     FILE *file;
     char filename[100];
     char line[200];
-    const char *delimiters = " \t\n\r-,.?!@";
+    const char *delimiters = " \t\n\r-,.?!@0123456789";
     
     /*
     printf("Enter the filename: ");
@@ -154,7 +161,7 @@ int main (){
 
     llist referenceList = createList();
 
-    int lineCount = 0;
+    int lineCount = 1;
 
     while (fgets(line, sizeof(line), file) != NULL) {
         /*
@@ -165,7 +172,6 @@ int main (){
     char *token = strtok(line, delimiters);
     while (token != NULL) {
         printf("Token: %s\n", token);
-        sToLower(token);
         referenceList = checkIfInList(referenceList, token, lineCount);
         // Subsequent calls: pass NULL to continue tracking the same string
         token = strtok(NULL, delimiters);
