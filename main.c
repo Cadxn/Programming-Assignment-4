@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 struct node {
     char data[100];
-    int reference[50];
+    int reference[200];
     struct node *next;
 };
 
@@ -14,30 +15,42 @@ typedef struct node *llist;
 llist createList() {
 return NULL;
 }
-/*
+
 void printList(llist l){
     if(l == NULL) {
         printf("List is empty");
         return;
     }
     while(l->next != NULL){
-        printf("%d ", l->data);
+        for(int i = 0; i < strlen(l->data); i++) {
+            printf("%c", l->data[i]);
+        }
+        for(int i = 0; l->reference[i] != 0; i++){
+        printf("%d, ", l->reference[i]);
+        }
         l = l->next;
     } 
-    printf("%d ", l->data);
+    for(int i = 0; i < strlen(l->data); i++) {
+            printf("%d ", l->data[i]);
+    }
+    for(int i = 0; l->reference[i] != 0; i++){
+        printf("%d, ", l->reference[i]);
+    }
     return;
 }
-*/
 
-llist addAtEnd(const llist l, char s[], int c[]){
+
+llist addAtEnd(const llist l, char s[], int c){
     printf("Addatend");
     llist t = malloc(sizeof(struct node));
     for(int i = 0; i < strlen(s); i++){
         t->data[i] = s[i];
     } 
-    for(int i = 0; i < sizeof(c); i++){
-        t->reference[i] = c[i];
+    t->data[strlen(s)] = '\0';
+    for(int i = 0; i < sizeof(t->reference) / sizeof(t->reference[0]); i++){
+        t->reference[i] = 0;
     }
+    t->reference[0] = c;
     t->next = NULL;
 
     if(l == NULL) {
@@ -66,7 +79,7 @@ char sToLower(char s[]){
 }
 
 int scmp(char s1[], char s2[]){
-    printf("scmp");
+    //printf("scmp");
     int length = 0;
 
     if(strlen(s1) > strlen(s2)){
@@ -87,23 +100,32 @@ int scmp(char s1[], char s2[]){
 }
     
 
-void checkIfInList(llist s, char str[], int lineCount){
+llist checkIfInList(llist s, char str[], int lineCount){
     printf("CheckInList");
+    llist temp = s;
+    int jCheck = 0;
     if(s == NULL){
-        addAtEnd(s, str, lineCount);
-        return;
+        return addAtEnd(s, str, lineCount);
     }
-        while(s->next != NULL){
-            if(scmp(s->data, str) == 0){
-                for(int j = 0; s->reference[j] != 0; j++){
-                     s->reference[j] = lineCount;
-                     return;
+        while(temp->next != NULL){
+            if(scmp(temp->data, str) == 0){
+                for(int j = 0; temp->reference[j] != 0; j++){
+                    jCheck++;
                 }
+                temp->reference[jCheck] = lineCount;
+                return s;
             }
-        s = s->next;
+        temp = temp->next;
+        }
+        if(scmp(temp->data, str) == 0){
+            for(int j = 0; temp->reference[j] != 0; j++){
+                jCheck++;
+            }
+            temp->reference[jCheck] = lineCount;
+            return s;
         }
         addAtEnd(s, str, lineCount);
-        return;
+        return s;
     }
 
 
@@ -144,13 +166,14 @@ int main (){
     while (token != NULL) {
         printf("Token: %s\n", token);
         sToLower(token);
-        checkIfInList(referenceList, token, lineCount);
+        referenceList = checkIfInList(referenceList, token, lineCount);
         // Subsequent calls: pass NULL to continue tracking the same string
         token = strtok(NULL, delimiters);
         }
     lineCount++;
     }
 
+    printList(referenceList);
 
     fclose(file);
     return 0;
