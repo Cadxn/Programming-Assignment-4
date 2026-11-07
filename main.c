@@ -5,7 +5,7 @@
 
 struct node {
     char data[100];
-    int reference[200];
+    int reference[10000];
     struct node *next;
 };
 
@@ -21,12 +21,12 @@ void printList(llist l){
         return;
     }
     while(l->next != NULL){
-        for(int i = 0; i < strlen(l->data); i++) {
-            printf("%c", l->data[i]);
-        }
+
+        printf("%-21s", l->data);
+
         for(int i = 0; l->reference[i] != 0; i++){
             if(i == 0){
-                printf("%20d, ", l->reference[i]);
+                printf("%d, ", l->reference[i]);
                 continue;
             }
             else if(l->reference[i+1] == 0){
@@ -38,18 +38,20 @@ void printList(llist l){
         l = l->next;
         printf("\n");
     }
-    for(int i = 0; i < strlen(l->data); i++) {
-            printf("%c", l->data[i]);
-    }
+            printf("%-21s", l->data);
     for(int i = 0; l->reference[i] != 0; i++){
+        if(i == 0){
+                printf("%d, ", l->reference[i]);
+                continue;
+        }
         printf("%d, ", l->reference[i]);
     }
     return;
 }
 
 
-llist addAtEnd(const llist l, char s[], int c){
-    printf("Addatend");
+llist addSorted(const llist l, char s[], int c){
+    //printf("Addatend");
     llist t = malloc(sizeof(struct node));
     for(int i = 0; i < strlen(s); i++){
         t->data[i] = s[i];
@@ -64,17 +66,25 @@ llist addAtEnd(const llist l, char s[], int c){
     if(l == NULL) {
         return t;
     } 
+    if(scmp(l->data, s) > 0){
+        t->next = l;
+        return t;
+    }
     
     llist temp = l;
     
-     
-    while (temp->next != NULL){
+    while(temp->next != NULL && scmp(temp->next->data, s) < 0){
         temp = temp->next;
     }
-
+    if (temp->next != NULL && scmp(temp->next->data, s) == 0) {
+        free(t);
+        return l;
+    }
+     
+    t->next = temp->next;
     temp->next = t;
-
     return l;
+
 }
 /*
 char sToLower(char s[]){
@@ -114,7 +124,7 @@ llist checkIfInList(llist s, char str[], int lineCount){
     llist temp = s;
     int jCheck = 0;
     if(s == NULL){
-        return addAtEnd(s, str, lineCount);
+        return addSorted(s, str, lineCount);
     }
         while(temp->next != NULL){
             if(scmp(temp->data, str) == 0){
@@ -139,15 +149,23 @@ llist checkIfInList(llist s, char str[], int lineCount){
             temp->reference[jCheck] = lineCount;
             return s;
         }
-        addAtEnd(s, str, lineCount);
+        s = addSorted(s, str, lineCount);
         return s;
     }
-
+int countElements(llist l){
+    int count = 0;
+    while(l != NULL){
+        count++;
+        l = l->next;
+    }
+    return count;
+}
 
 int main (){
     FILE *file;
     char filename[100];
     char line[200];
+    int totalWords = 0;
     const char *delimiters = " \t\n\r-,.?!@0123456789";
     
     /*
@@ -179,9 +197,10 @@ int main (){
             */
     char *token = strtok(line, delimiters);
     while (token != NULL) {
-        printf("Token: %s\n", token);
+        //printf("Token: %s\n", token);
+        totalWords++;
         referenceList = checkIfInList(referenceList, token, lineCount);
-        // Subsequent calls: pass NULL to continue tracking the same string
+        
         token = strtok(NULL, delimiters);
         }
     lineCount++;
@@ -189,8 +208,11 @@ int main (){
 
     printf("Word                  References   \n");
     printf("--------------------- ------------  \n");
+    
     printList(referenceList);
-
+    printf("\nTotal unique words: %d\n", countElements(referenceList));
+    printf("Total words: %d\n", totalWords);
+    printf("Total lines: %d\n", lineCount - 1);
     fclose(file);
     return 0;
     }
